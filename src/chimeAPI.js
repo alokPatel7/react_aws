@@ -395,7 +395,7 @@ async function listChannels(appInstanceArn, userId) {
 
   const request = (await chimeMessagingClient()).listChannels(params);
   const response = await request.promise();
-  console.log("this is channel resp @@all", response);
+  // console.log("this is channel resp @@all", response);
   const channels = response.Channels;
   return channels;
 }

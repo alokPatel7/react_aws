@@ -76,7 +76,7 @@ const getAwsCredentialsFromCognito = async () => {
   const essentialCreds = await Auth.essentialCredentials(creds);
   AWS.config.region = appConfig.region;
   AWS.config.credentials = essentialCreds;
-  console.log("getAwsCreadentialsFromCognito", essentialCreds);
+  // console.log("getAwsCreadentialsFromCognito", essentialCreds);
   return essentialCreds;
 };
 
