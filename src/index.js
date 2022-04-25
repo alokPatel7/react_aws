@@ -6,6 +6,13 @@ import reportWebVitals from "./reportWebVitals";
 
 import * as AWS from "aws-sdk";
 import appConfig from "./aws_config";
+import { Amplify } from "aws-amplify";
+import awsExports from "./aws-exports";
+import configureAmplify from "./amplify_config";
+Amplify.configure(awsExports);
+
+configureAmplify();
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 AWS.config.update({

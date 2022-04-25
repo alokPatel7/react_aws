@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import {
   MainContainer,
@@ -18,26 +18,54 @@ import {
   Message,
   MessageInput,
 } from "@chatscope/chat-ui-kit-react";
-import { createChannel } from "./chimeAPI";
+import {
+  createChannel,
+  listChannelFlows,
+  listChannelMembershipsForAppInstanceUser,
+  listChannels,
+  listChannelsForAppInstanceUser,
+} from "./chimeAPI";
 import appConfig from "./aws_config";
+import {
+  userSignIn,
+  getAwsCredentialsFromCognito,
+} from "./providers/AuthProvider";
 
 export default function Chat() {
   let [textValue, setTextValue] = useState("");
+  let [channelList, setCannelList] = useState([]);
   const setMessageInputValue = (val) => {
     setTextValue(val);
   };
+
+  useEffect(() => {
+    const getData = async () => {
+      const user = await userSignIn("Mark", "Test@1mark");
+      const isAuthenticated = await getAwsCredentialsFromCognito();
+      const userId = JSON.parse(localStorage.getItem("userId"));
+      let channels = await listChannelMembershipsForAppInstanceUser(userId);
+      channels = channels.map((ch) => ch.ChannelSummary);
+      setCannelList(channels);
+      console.log("this is user", user);
+      console.log("channels list", channels);
+      console.log("channel response", isAuthenticated);
+    };
+    getData();
+  }, []);
+
   const sendMessageInputValue = async (val) => {
     console.log("this is send callesd");
-    const channel = await createChannel(
-      appConfig.appInstanceArn,
-      null,
-      "TEST channesl 0001",
-      "UNRESTRICTED",
-      "PRIVATE",
-      "9fd58a7e-59e7-41b7-a4d2-1b595664cca6"
-    );
-    console.log("channel response", channel);
 
+    // const channel = await createChannel(
+    //   appConfig.appInstanceArn,
+    //   null,
+    //   "TEST channesl 00012",
+    //   "UNRESTRICTED",
+    //   "PRIVATE",
+    //   userId
+    // );
+
+    // console.log("channel desc", channel);
     setTextValue("");
   };
 
@@ -51,19 +79,22 @@ export default function Chat() {
         <Sidebar position="left" scrollable={false}>
           <Search placeholder="Search..." />
           <ConversationList>
-            <Conversation
-              name="Lilly"
-              lastSenderName="Lilly"
-              info="Yes i can do it for you"
-            >
-              <Avatar
-                src={
-                  "https://chatscope.io/storybook/react/static/media/emily.d34aecd9.svg"
-                }
-                name="Lilly"
-                status="available"
-              />
-            </Conversation>
+            {channelList.map((ch) => (
+              <Conversation
+                key={ch.ChannelArn}
+                name={ch.Name}
+                lastSenderName="Lilly"
+                info="Yes i can do it for you"
+              >
+                <Avatar
+                  src={
+                    "https://chatscope.io/storybook/react/static/media/emily.d34aecd9.svg"
+                  }
+                  name="Lilly"
+                  status="available"
+                />
+              </Conversation>
+            ))}
           </ConversationList>
         </Sidebar>
         <ChatContainer>
